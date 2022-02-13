@@ -14,7 +14,6 @@ public class Main {
 	
 	public Main(String port) {
 		SerialConnection connection = new SerialConnection(port);
-		log.log(Level.INFO, "Test");
 		connection.addReceivedListener(new ReceivedListener() {
 			
 			@Override
@@ -44,7 +43,12 @@ public class Main {
 						connection.close();
 						scan.close();
 						System.exit(0);
-					} else {
+					} 
+					else if(input.toLowerCase().startsWith("forward")) {
+						System.out.println(input);
+						Steering.FORWARD.go(connection, Float.parseFloat(input.split(" ")[1]));
+					}
+					else {
 						connection.write(input);
 					}
 					try {
