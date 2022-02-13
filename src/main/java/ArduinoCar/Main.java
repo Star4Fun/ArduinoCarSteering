@@ -14,6 +14,7 @@ public class Main {
 	
 	public Main(String port) {
 		SerialConnection connection = new SerialConnection(port);
+		log.log(Level.INFO, "Test");
 		connection.addReceivedListener(new ReceivedListener() {
 			
 			@Override
