@@ -5,11 +5,15 @@ public enum Steering {
 	LEFT('l'),
 	RIGHT('r'),
 	FORWARD('f'),
-	BREAK('b'),
-	REVERSE('z');
+	STOP('s'),
+	BACKWARD('b');
 	
 	char command;
 	
+	/**
+	 * 
+	 * @param command the char to communicate with the arduino
+	 */
 	private Steering(char command) {
 		this.command = command;
 	}
@@ -18,7 +22,12 @@ public enum Steering {
 		return command;
 	}
 	
-	public void go(SerialConnection connection, float speed) {
+	/**
+	 * 
+	 * @param connection the connection to the arduino
+	 * @param speed the targeted speed
+	 */
+	public void go(SerialConnection connection, int speed) {
 		connection.write(getCommand() + " " + speed);
 	}
 	

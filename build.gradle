@@ -13,6 +13,10 @@ plugins {
     id 'application'
 }
 
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -26,7 +30,22 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:28.0-jre'
-    compile 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
+    //implementation 'com.pi4j:pi4j-core:2.1.1'
+    //implementation 'com.pi4j:pi4j-gpio-extension:1.3'
+    //implementation 'com.pi4j:pi4j-device:1.3'
+    implementation files('libs/pixy2-java-api.jar')
+    implementation files('libs/slf4j-api-1.7.32.jar')
+    implementation files('libs/pi4j-core-2.2.0-SNAPSHOT.jar')
+    implementation files('libs/pi4j-library-linuxfs-2.2.0-SNAPSHOT.jar')
+    implementation files('libs/pi4j-library-pigpio-2.2.0-SNAPSHOT.jar')
+    implementation files('libs/pi4j-plugin-linuxfs-2.2.0-SNAPSHOT.jar')
+    implementation files('libs/pi4j-plugin-pigpio-2.2.0-SNAPSHOT.jar')
+    implementation files('libs/pi4j-plugin-raspberrypi-2.2.0-SNAPSHOT.jar')
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
+    //implementation 'com.pi4j:pi4j-plugin-raspberrypi:2.1.1'
+    //implementation 'com.pi4j:pi4j-plugin-pigpio:2.1.1'
+    //implementation 'com.pi4j:pi4j-plugin-linuxfs:2.1.1'
+    implementation 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
@@ -36,3 +55,33 @@ application {
 	mainClassName = 'ArduinoCar.Main'
 }
 
+task finalize() {
+    doLast {
+       println('finally!')
+       def pathToJar = jar.archiveFile.get().asFile.path
+       def ip = '192.168.180.111'
+      // ip = 'raspberrypi'
+       def name = 'pi'
+       def command = 'scp ' + pathToJar + ' ' + name + "@" + ip + ":/home/pi/Desktop/ArduinoCar/lib"
+       println command
+       //exec 'echo Hallo Melvin'
+       //exec("sh", "echo Hallo")
+       def proc = command.execute()
+    	proc.waitForProcessOutput(System.out, System.err)
+       //commandLine 'sh', 'echo', 'Hallo'
+       //executable "sh"
+  		//args "-c", "echo 'hello from your shell'"
+        //commandLine 'scp project.buildDir
+    }
+}
+
+build.finalizedBy(finalize)
+
+
+task moveToPi {
+    group 'build'
+    description 'Produces a greeting'
+    doLast {
+        println 'Hello world!'
+    }
+}

@@ -20,6 +20,10 @@ public class SerialConnection {
 	
 	boolean isOpen = false;
 	
+	/**
+	 * Init a connection to the arduino
+	 * @param serialPort the port on which the arduino is attached to
+	 */
 	public SerialConnection(String serialPort) {
 		port = SerialPort.getCommPort(serialPort);
 		port.setComPortParameters(9600,8,1,0);
@@ -79,11 +83,18 @@ public class SerialConnection {
         });
 	}
 	
+	/**
+	 * Send a string to the arduino
+	 * @param s the message
+	 */
 	public void write(String s) {
 		portOutput.write(s);
 		portOutput.flush();
 	}
 	
+	/**
+	 * Close the connection
+	 */
 	public void close() {
 		if(isOpen) {
 			port.removeDataListener();
@@ -92,6 +103,7 @@ public class SerialConnection {
 			port.closePort();
 		}
 	}
+	
 	
 	public void addReceivedListener(ReceivedListener listen) {
 		this.listeners.add(listen);
