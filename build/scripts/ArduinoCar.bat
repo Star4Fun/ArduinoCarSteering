@@ -30,7 +30,7 @@ set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%..
 
 @rem Add default JVM options here. You can also use JAVA_OPTS and ARDUINO_CAR_OPTS to pass JVM options to this script.
-set DEFAULT_JVM_OPTS=
+set DEFAULT_JVM_OPTS="-Djava.util.logging.SimpleFormatter.format='%%1$tY-%%1$tm-%%1$td %%1$tH:%%1$tM:%%1$tS %%5$s%%6$s%%n'" "-cacao"
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome

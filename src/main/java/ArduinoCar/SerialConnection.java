@@ -1,5 +1,6 @@
 package ArduinoCar;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -25,10 +26,13 @@ public class SerialConnection {
 	 * @param serialPort the port on which the arduino is attached to
 	 */
 	public SerialConnection(String serialPort) {
+		isOpen = true;
 		port = SerialPort.getCommPort(serialPort);
-		port.setComPortParameters(9600,8,1,0);
-		port.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
-		port.openPort();
+//		port.setComPortParameters(9600,8,1,0);
+//		port.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
+
+		port.setComPortParameters(115200, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+		port.openPort(0);
 		
 		portInput = new Scanner(port.getInputStream());
 		portOutput = new PrintWriter(port.getOutputStream(), true);
@@ -88,8 +92,14 @@ public class SerialConnection {
 	 * @param s the message
 	 */
 	public void write(String s) {
-		portOutput.write(s);
-		portOutput.flush();
+//		portOutput.write(s);
+//		portOutput.flush();
+		try {
+			port.getOutputStream().write(s.getBytes());
+			port.getOutputStream().flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**

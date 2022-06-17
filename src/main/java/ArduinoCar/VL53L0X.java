@@ -2,13 +2,12 @@ package ArduinoCar;
 
 import java.nio.ByteBuffer;
 
-import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CRegister;
 
-public class VL53L0X {
+public class VL53L0X extends MeasurementUnit {
 	
     public enum Register
     {
@@ -106,6 +105,8 @@ public class VL53L0X {
     private byte spad_count;
     private boolean spad_type_is_aperture;
 
+    private I2C vl53;
+    
     // make this a long since example has this as unsigned 32bit int.
     //uint32_t measurement_timing_budget_us;
     long measurement_timing_budget_us;
@@ -116,10 +117,10 @@ public class VL53L0X {
 //    protected ElapsedTime ioElapsedTime;
     boolean did_timeout = false;
 	
-	public VL53L0X() {
-		Context pi4j = Pi4J.newAutoContext();
-		I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j).id("TCA9534").provider("pigpio-i2c").bus(1).device(0x29).build();
-		try (I2C vl53 = pi4j.create(i2cConfig)) {
+	public VL53L0X(Context pi4j) {
+		super(pi4j);
+		I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j).id("VL53L0X").provider("pigpio-i2c").bus(1).device(0x29).build();
+		vl53 = pi4j.create(i2cConfig);
 			I2CRegister register = vl53.register(0x29);
 			// --> write a single (8-bit) byte value to the I2C device register
             register.write(0xC0);
@@ -145,33 +146,18 @@ public class VL53L0X {
             did_timeout = false;
             
             System.err.println(this.initVL53L0X(vl53, false));
-            
-            while(!did_timeout) {
-            	System.err.println(getDistance(vl53, DistanceUnit.CM));
-            }
-            
-            vl53.close();
-		}
+//		}
 	}
 	
-	public static enum DistanceUnit {
-		CM,
-		METER,
-		INCH;
+	@Override
+	public void exit() {
+		vl53.close();
 	}
 	
     public double getDistance(I2C vl53, DistanceUnit unit) {
         double range = (double)this.readRangeContinuousMillimeters(vl53);
 
-        if (unit == DistanceUnit.CM) {
-            return range / 10;
-        } else if (unit == DistanceUnit.METER) {
-            return range / 1000;
-        } else if (unit == DistanceUnit.INCH) {
-            return range / 25.4;
-        } else {
-            return range;
-        }
+        return convert(range, unit);
     }
     
     /**
@@ -876,21 +862,10 @@ public class VL53L0X {
         
         return range;
     }
-    
-    private short byteArrayToShort(byte[] array) {
-    	return ByteBuffer.wrap(array).getShort();
-    }
-    
-    private void writeShort(I2C vl53, int register, short s) {
-    	vl53.writeRegister(register, new Short(s).byteValue());
-    }
-    
-    private short readShort(I2C vl53, int register) {
-    	return vl53.readRegisterByteBuffer(register, 2).getShort();
-    }
-    
-	private String getHexString(byte value) {
-		return Integer.toHexString(Byte.toUnsignedInt(value));
+
+	@Override
+	public double getDistance(DistanceUnit unit) {
+		return getDistance(vl53, unit);
 	}
 	
 }
